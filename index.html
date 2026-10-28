@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ellie's P3 English Super World - St. Rose of Lima's Edition</title>
+    <!-- Tailwind CSS for modern UI UI overlays -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for cute Japanese soft pastel aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            background-color: #fdf6f0;
+            overflow: hidden;
+        }
+
+        /* Japanese Soft Pastel Theme Palette */
+        .bg-pastel-pink { background-color: #fce1e4; }
+        .bg-pastel-blue { background-color: #e2f0cb; }
+        .bg-pastel-mint { background-color: #c7ceea; }
+        .bg-pastel-yellow { background-color: #fff5ba; }
+        
+        .border-pastel-pink { border-color: #f4abb5; }
+        .border-pastel-blue { border-color: #b5ead7; }
+
+        /* Custom Scrollbar for Modal */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffb7c5;
+            border-radius: 10px;
+        }
+
+        /* Pulsing & Floating Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+        .floating { animation: float 3s ease-in-out infinite; }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 183, 197, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 183, 197, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 183, 197, 0); }
+        }
+        .glow-btn { animation: pulse-glow 2s infinite; }
+
+        /* Game Container Aspect Ratio & Canvas Shadow */
+        #game-container {
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            border-radius: 24px;
+            overflow: hidden;
+            background: linear-gradient(180deg, #d4f0f0 0%, #c7ceea 100%);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Touch Virtual Buttons Styling */
+        .touch-btn {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(4px);
+            border: 3px solid #ffb7c5;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #555;
+            font-size: 1.5rem;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .touch-btn:active {
+            background: rgba(255, 183, 197, 0.9);
+            color: white;
+            transform: scale(0.92);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-2 sm:p-4 bg-amber-50">
+
+    <!-- Top Navigation Header -->
+    <header class="w-full max-w-5xl mb-2 flex justify-between items-center px-4 py-2 bg-white/80 backdrop-blur rounded-2xl shadow-sm border border-pink-100">
+        <div class="flex items-center gap-3">
+            <button onclick="returnToMenu()" class="w-10 h-10 rounded-full bg-pink-300 hover:bg-pink-400 text-white text-xl font-bold shadow flex items-center justify-center transition" title="Return to Main Menu">
+                🏠
+            </button>
+            <div>
+                <h1 class="text-lg sm:text-xl font-bold text-pink-600 leading-tight">Ellie's English Super World</h1>
+                <p class="text-xs text-gray-500 hidden sm:block">St. Rose of Lima's School • P3 English Exam Revision</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="returnToMenu()" class="bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs sm:text-sm px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 border border-rose-300 transition shadow-sm">
+                <i class="fa-solid fa-house text-rose-600"></i> <span class="hidden sm:inline">Main Menu</span>
+            </button>
+            <button onclick="openShop()" class="bg-purple-100 hover:bg-purple-200 text-purple-800 text-xs sm:text-sm px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 border border-purple-300 transition shadow-sm">
+                <i class="fa-solid fa-store text-purple-600"></i> Star Shop
+            </button>
+            <button onclick="openNotebook()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs sm:text-sm px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 border border-amber-300 transition">
+                <i class="fa-solid fa-book-bookmark text-amber-600"></i> Revision Notes
+            </button>
+            <button onclick="toggleAudio()" id="sound-btn" class="bg-blue-100 text-blue-700 text-xs sm:text-sm px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 border border-blue-200 hover:bg-blue-200 transition">
+                <i class="fa-solid fa-volume-high"></i> <span class="hidden sm:inline">Sound</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <div id="game-container" class="w-full max-w-5xl aspect-[16/9] max-h-[75vh] border-4 border-pink-200">
+        
+        <!-- Game HUD Overlay -->
+        <div id="hud" class="absolute top-3 left-3 right-3 z-10 flex justify-between items-center pointer-events-none text-slate-700 font-bold">
+            <!-- Stage / Level Badge -->
+            <div class="bg-white/80 backdrop-blur px-3 py-1.5 rounded-full border border-pink-200 shadow-sm flex items-center gap-2">
+                <span id="world-title" class="text-xs sm:text-sm text-pink-600 font-extrabold">World 1 - Stage 1</span>
+            </div>
+
+            <!-- Score & Collected Stars -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="bg-yellow-100/90 backdrop-blur px-3 py-1 rounded-full border border-yellow-300 shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-star text-yellow-500 text-sm"></i>
+                    <span id="star-count" class="text-yellow-700 text-sm sm:text-base">0 / 5</span>
+                </div>
+                <div class="bg-pink-100/90 backdrop-blur px-3 py-1 rounded-full border border-pink-300 shadow-sm flex items-center gap-1.5">
+                    <i class="fa-solid fa-coins text-amber-500 text-sm"></i>
+                    <span id="score-val" class="text-pink-700 text-sm sm:text-base">0 pts</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- HTML5 Canvas Engine -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Touch Controls Overlay for Mobile & Touchscreens -->
+        <div id="touch-controls" class="absolute bottom-4 left-4 right-4 z-10 flex justify-between items-center pointer-events-none">
+            <div class="flex gap-3 pointer-events-auto">
+                <button id="btn-left" class="touch-btn w-12 h-12 sm:w-14 sm:h-14"><i class="fa-solid fa-arrow-left"></i></button>
+                <button id="btn-right" class="touch-btn w-12 h-12 sm:w-14 sm:h-14"><i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+            <div class="pointer-events-auto">
+                <button id="btn-jump" class="touch-btn w-14 h-14 sm:w-16 sm:h-16 text-pink-500"><i class="fa-solid fa-arrow-up"></i></button>
+            </div>
+        </div>
+
+        <!-- Start / Stage Select Menu Overlay -->
+        <div id="start-screen" class="absolute inset-0 z-20 bg-gradient-to-br from-pink-100/95 via-purple-50/95 to-sky-100/95 backdrop-blur flex flex-col items-center justify-center p-4 text-center overflow-y-auto">
+            <div class="bg-white/95 p-5 sm:p-6 rounded-3xl shadow-xl border-4 border-pink-200 max-w-xl w-full my-auto">
+                <div class="inline-block p-2 bg-pink-100 rounded-full mb-1">
+                    <span class="text-3xl">🐰</span>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-pink-600 mb-1">Hi Ellie! Select Your Stage 🌟</h2>
+                <p class="text-xs text-gray-600 mb-3">Choose a category and play through 10 exciting stages!</p>
+
+                <!-- Category Tabs -->
+                <div class="flex justify-center gap-2 mb-3">
+                    <button onclick="switchWorldTab(1)" id="tab-w1" class="px-3 py-1.5 rounded-xl font-bold text-xs bg-pink-500 text-white shadow">World 1: Friends</button>
+                    <button onclick="switchWorldTab(2)" id="tab-w2" class="px-3 py-1.5 rounded-xl font-bold text-xs bg-gray-200 text-gray-700 hover:bg-sky-200">World 2: Verbs</button>
+                    <button onclick="switchWorldTab(3)" id="tab-w3" class="px-3 py-1.5 rounded-xl font-bold text-xs bg-gray-200 text-gray-700 hover:bg-emerald-200">World 3: Advice</button>
+                </div>
+
+                <!-- 10 Stages Grid -->
+                <div id="stages-grid" class="grid grid-cols-5 gap-2 mb-4">
+                    <!-- Dynamically generated stage buttons 1 to 10 -->
+                </div>
+
+                <div class="flex gap-2 justify-center">
+                    <button onclick="openShop()" class="py-2 px-4 bg-purple-500 text-white text-xs font-bold rounded-xl shadow hover:bg-purple-600 transition">
+                        <i class="fa-solid fa-store mr-1"></i> Open Dress-up Shop
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Victory Modal -->
+        <div id="victory-modal" class="hidden absolute inset-0 z-40 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-6 shadow-2xl border-4 border-yellow-300 max-w-sm w-full text-center">
+                <div class="text-5xl mb-2">🎉</div>
+                <h3 class="text-2xl font-extrabold text-pink-600 mb-1">Stage Clear!</h3>
+                <p class="text-xs text-gray-500 mb-4">Awesome job, Ellie!</p>
+                <div class="bg-yellow-50 p-3 rounded-2xl border border-yellow-200 mb-4 space-y-1">
+                    <div class="text-sm font-bold text-amber-800">Stars: <span id="victory-stars" class="text-yellow-600">5 / 5 ⭐</span></div>
+                    <div class="text-sm font-bold text-amber-800">Score: <span id="victory-score" class="text-pink-600">500 pts</span></div>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <button onclick="nextStage()" id="next-stage-btn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow transition">Next Stage <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                    <button onclick="returnToMenu()" class="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition">Main Menu 🏠</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Question Popup Modal -->
+        <div id="quiz-modal" class="hidden absolute inset-0 z-30 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border-4 border-yellow-300 max-w-lg w-full transform transition-all scale-100 animate-fade-in">
+                
+                <div class="flex justify-between items-center mb-3">
+                    <span class="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                        <i class="fa-regular fa-lightbulb"></i> Question Block Pop!
+                    </span>
+                    <button id="hint-btn" onclick="useHint()" class="hidden bg-purple-100 text-purple-700 text-xs px-2.5 py-1 rounded-full font-bold border border-purple-300 hover:bg-purple-200">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Use Hint (1 Star)
+                    </button>
+                </div>
+
+                <!-- Question Text -->
+                <h3 id="quiz-question" class="text-base sm:text-lg font-bold text-slate-800 mb-4 leading-snug">
+                    Question goes here...
+                </h3>
+
+                <!-- Options List -->
+                <div id="quiz-options" class="space-y-2.5 mb-4">
+                    <!-- Dynamic Buttons -->
+                </div>
+
+                <!-- Explanation / Feedback Box -->
+                <div id="quiz-feedback" class="hidden p-3 rounded-2xl text-xs sm:text-sm mb-3"></div>
+
+                <button id="quiz-next-btn" onclick="closeQuizModal()" class="hidden w-full py-2.5 bg-gradient-to-r from-emerald-400 to-green-500 text-white font-bold rounded-xl shadow-md hover:opacity-95 transition">
+                    Continue Adventure <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    <!-- Star & Dress-up Shop Modal -->
+    <div id="shop-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-5 sm:p-6 max-w-lg w-full max-h-[85vh] flex flex-col border-4 border-purple-300 shadow-2xl">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">👑</span>
+                    <div>
+                        <h3 class="text-lg font-bold text-purple-900">Ellie's Magic Dress-up Shop</h3>
+                        <p class="text-xs text-gray-500">Spend coins to unlock cute looks & power-ups!</p>
+                    </div>
+                </div>
+                <button onclick="closeShop()" class="text-gray-400 hover:text-gray-600 text-xl font-bold p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Shop Items Grid -->
+            <div class="overflow-y-auto space-y-4 pr-1 text-xs sm:text-sm">
+                <!-- Outfits Category -->
+                <div>
+                    <h4 class="font-bold text-pink-600 text-xs mb-2 uppercase tracking-wide"><i class="fa-solid fa-shirt"></i> Outfits</h4>
+                    <div class="grid grid-cols-2 gap-2" id="outfit-shop">
+                        <!-- Dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Hats & Accessories Category -->
+                <div>
+                    <h4 class="font-bold text-purple-600 text-xs mb-2 uppercase tracking-wide"><i class="fa-solid fa-hat-wizard"></i> Cute Hats & Accessories</h4>
+                    <div class="grid grid-cols-2 gap-2" id="hat-shop">
+                        <!-- Dynamically generated -->
+                    </div>
+                </div>
+
+                <!-- Power-ups Category -->
+                <div>
+                    <h4 class="font-bold text-amber-600 text-xs mb-2 uppercase tracking-wide"><i class="fa-solid fa-bolt"></i> Exam Power-ups</h4>
+                    <div class="grid grid-cols-1 gap-2" id="power-shop">
+                        <!-- Dynamically generated -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-2 border-t flex justify-between items-center">
+                <div class="text-xs font-bold text-amber-600 flex items-center gap-1">
+                    <i class="fa-solid fa-coins text-amber-500 text-base"></i> <span id="shop-coins">0</span> pts
+                </div>
+                <button onclick="closeShop()" class="px-5 py-2 bg-purple-500 text-white font-bold rounded-xl hover:bg-purple-600 transition text-xs">Close Shop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revision Notes Modal -->
+    <div id="notebook-modal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-5 sm:p-6 max-w-2xl w-full max-h-[85vh] flex flex-col border-4 border-amber-200 shadow-2xl">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b">
+                <h3 class="text-xl font-bold text-amber-800 flex items-center gap-2">
+                    <i class="fa-solid fa-book-open-reader text-amber-600"></i> Ellie's Exam Review Notes
+                </h3>
+                <button onclick="closeNotebook()" class="text-gray-400 hover:text-gray-600 text-xl font-bold p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="overflow-y-auto space-y-4 pr-1 text-xs sm:text-sm text-slate-700">
+                <!-- Section 1 -->
+                <div class="bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200">
+                    <h4 class="font-bold text-amber-900 text-sm mb-1">🌟 Positive Friends & Behaviours</h4>
+                    <p class="mb-1"><span class="font-bold text-pink-600">Adjectives:</span> caring, generous, good-tempered, supportive, considerate, polite, easygoing, humorous, patient, honest/trustworthy.</p>
+                    <p><span class="font-bold text-green-600">Good Friends:</span> listen to, talk to, look after, share with, cheer up, stand up for, count on.</p>
+                </div>
+
+                <!-- Section 2 -->
+                <div class="bg-rose-50/80 p-3.5 rounded-2xl border border-rose-200">
+                    <h4 class="font-bold text-rose-900 text-sm mb-1">⚠️ Negative Friends & Behaviours</h4>
+                    <p class="mb-1"><span class="font-bold text-red-600">Adjectives:</span> naughty, rude, dishonest, greedy, selfish, impatient, mean, cranky, bad-tempered, gloomy, hot-headed.</p>
+                    <p><span class="font-bold text-red-600">Don't:</span> fight with, argue with, shout at, laugh at, play tricks on, pick on, make fun of, show off to.</p>
+                </div>
+
+                <!-- Section 3 -->
+                <div class="bg-blue-50/80 p-3.5 rounded-2xl border border-blue-200">
+                    <h4 class="font-bold text-blue-900 text-sm mb-1">📝 Past Tense Verbs (Regular Rules)</h4>
+                    <ul class="list-disc list-inside space-y-0.5 text-slate-600">
+                        <li>General: add <b>-ed</b> (ask $\rightarrow$ asked, cheer $\rightarrow$ cheered)</li>
+                        <li>Ends in 'e': add <b>-d</b> (use $\rightarrow$ used, smile $\rightarrow$ smiled, bake $\rightarrow$ baked)</li>
+                        <li>Short vowel + consonant: <b>double last letter + ed</b> (stop $\rightarrow$ stopped, hop $\rightarrow$ hopped, hug $\rightarrow$ hugged)</li>
+                        <li>Consonant + y: <b>remove y + add -ied</b> (cry $\rightarrow$ cried, try $\rightarrow$ tried, carry $\rightarrow$ carried)</li>
+                        <li>Vowel + y: <b>keep y + add -ed</b> (play $\rightarrow$ played, stay $\rightarrow$ stayed)</li>
+                        <li>Auxiliaries: <b>is/am $\rightarrow$ was</b>, <b>are $\rightarrow$ were</b>, <b>can $\rightarrow$ could</b></li>
+                    </ul>
+                </div>
+
+                <!-- Section 4 -->
+                <div class="bg-purple-50/80 p-3.5 rounded-2xl border border-purple-200">
+                    <h4 class="font-bold text-purple-900 text-sm mb-1">💡 Advice & classroom Prepositions</h4>
+                    <p class="mb-1"><b>have to / should / shouldn't + Base Verb:</b> "You should share toys." / "You shouldn't throw a tantrum."</p>
+                    <p><b>Prepositions:</b> by the wall, by the window, at the front of, at the back of, in the middle of, between A and B, behind, on my right/left.</p>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-2 border-t flex justify-end">
+                <button onclick="closeNotebook()" class="px-5 py-2 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 transition">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Audio Synthesizer & Game Scripts -->
+    <script>
+        /* --- Audio & Theme Definitions --- */
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        const STAGE_THEMES = [
+            { bgTop: '#d4f0f0', bgBottom: '#c7ceea', ground: '#b5ead7', block: '#fff5ba' }, // Sakura Spring
+            { bgTop: '#ffecd2', bgBottom: '#fcb69f', ground: '#ffb7c5', block: '#e2f0cb' }, // Sunset Pastel
+            { bgTop: '#a1c4fd', bgBottom: '#c2e9fb', ground: '#b5e2fa', block: '#fff5ba' }, // Sky World
+            { bgTop: '#e0c3fc', bgBottom: '#8ec5fc', ground: '#d8b4fe', block: '#fef08a' }, // Lavender Mist
+            { bgTop: '#fbc2eb', bgBottom: '#a6c1ee', ground: '#f472b6', block: '#fed7aa' }, // Cotton Candy
+            { bgTop: '#fdcbf9', bgBottom: '#e6dee9', ground: '#e879f9', block: '#bbf7d0' }, // Crystal Palace
+            { bgTop: '#d4fc79', bgBottom: '#96e6a1', ground: '#86efac', block: '#fef08a' }, // Emerald Garden
+            { bgTop: '#ff9a9e', bgBottom: '#fecfef', ground: '#f43f5e', block: '#e0e7ff' }, // Strawberry Field
+            { bgTop: '#f6d365', bgBottom: '#fda085', ground: '#fbbf24', block: '#bae6fd' }, // Golden Beach
+            { bgTop: '#a8edd9', bgBottom: '#fed6e3', ground: '#a7f3d0', block: '#fde68a' }  // Fairy Forest
+        ];
+
+        /* --- Quiz Database (10 Stages per Category = 30 total!) --- */
+        const QUESTION_BANK = {
+            1: [ // World 1: Friends & Behaviours (Stages 1-10)
+                [ // S1
+                    { q: "Which word describes a friend who always shares their snacks?", options: ["greedy", "generous", "selfish", "hot-headed"], correct: 1, explanation: "**Generous** means happy to share with others!" },
+                    { q: "Ellie comforts her friend when she feels sad. Ellie is...", options: ["caring", "cranky", "naughty", "impatient"], correct: 0, explanation: "**Caring** friends help comfort others." },
+                    { q: "Good friends should NEVER _______ their friends when upset.", options: ["look after", "stand up for", "shout at", "count on"], correct: 2, explanation: "We should never **shout at** our friends." },
+                    { q: "What does a 'good-tempered' friend do?", options: ["Loses temper", "Forgives and stays calm", "Plays mean tricks", "Tattles on others"], correct: 1, explanation: "**Good-tempered** means calm and forgiving." },
+                    { q: "Which shows positive friend behavior?", options: ["make fun of", "play tricks on", "stand up for", "show off to"], correct: 2, explanation: "Good friends **stand up for** each other!" }
+                ],
+                [ // S2
+                    { q: "Tom always listens patiently. He is very...", options: ["rude", "patient", "gloomy", "mean"], correct: 1, explanation: "**Patient** people listen without rushing." },
+                    { q: "Amy refuses to let anyone play with her toys. She is...", options: ["generous", "supportive", "selfish", "humorous"], correct: 2, explanation: "**Selfish** means not willing to share." },
+                    { q: "You can _______ your best friend when you need help.", options: ["laugh at", "count on", "pick on", "argue with"], correct: 1, explanation: "**Count on** means you can trust them to help." },
+                    { q: "When someone tells the truth all the time, they are...", options: ["dishonest", "honest", "cranky", "naughty"], correct: 1, explanation: "**Honest** people always speak the truth." },
+                    { q: "Good friends _______ each other when they win or lose.", options: ["cheer up", "fight with", "shout at", "show off to"], correct: 0, explanation: "Friends **cheer up** and encourage each other." }
+                ],
+                [ // S3
+                    { q: "A friend who makes everyone laugh is...", options: ["humorous", "gloomy", "impatient", "bad-tempered"], correct: 0, explanation: "**Humorous** means funny and amusing." },
+                    { q: "Never _______ someone just because they made a mistake.", options: ["look after", "cheer up", "make fun of", "talk to"], correct: 2, explanation: "Do not **make fun of** others' mistakes." },
+                    { q: "Paul always says 'please' and 'thank you'. He is...", options: ["polite", "rude", "naughty", "cranky"], correct: 0, explanation: "Using polite words makes you **polite**." },
+                    { q: "If you keep all the candies for yourself, you are...", options: ["considerate", "greedy", "kind", "easygoing"], correct: 1, explanation: "**Greedy** means wanting everything for yourself." },
+                    { q: "Good friends will always _______ their friends in trouble.", options: ["pick on", "argue with", "support", "laugh at"], correct: 2, explanation: "They **support** friends when in trouble." }
+                ],
+                [ // S4
+                    { q: "Which word means 'thinking of other people's feelings'?", options: ["considerate", "hot-headed", "dishonest", "mean"], correct: 0, explanation: "**Considerate** means caring about others." },
+                    { q: "When Ellie is sad, her friends try to _______ her.", options: ["pick on", "cheer up", "shout at", "show off to"], correct: 1, explanation: "Friends try to **cheer up** sad friends." },
+                    { q: "A person who gets angry very easily is...", options: ["easygoing", "good-tempered", "hot-headed", "supportive"], correct: 2, explanation: "**Hot-headed** people lose their temper quickly." },
+                    { q: "It is wrong to _______ classmates on the playground.", options: ["look after", "pick on", "listen to", "help"], correct: 1, explanation: "**Pick on** means to bully or tease repeatedly." },
+                    { q: "An _______ person doesn't worry easily and is relaxed.", options: ["easygoing", "impatient", "cranky", "gloomy"], correct: 0, explanation: "**Easygoing** means relaxed and friendly." }
+                ],
+                [ // S5
+                    { q: "Which of these is a NEGATIVE behavior?", options: ["sharing toys", "playing tricks on someone", "listening politely", "helping friends"], correct: 1, explanation: "Playing mean tricks is negative behavior." },
+                    { q: "A reliable friend who keeps secrets is...", options: ["trustworthy", "dishonest", "naughty", "rude"], correct: 0, explanation: "**Trustworthy** friends keep their promises." },
+                    { q: "Don't _______ your new shoes to make others feel bad.", options: ["look after", "show off", "count on", "cheer up"], correct: 1, explanation: "**Show off** means boasting boastfully." },
+                    { q: "If you break a rule on purpose, you are being...", options: ["caring", "naughty", "polite", "generous"], correct: 1, explanation: "**Naughty** means disobedient." },
+                    { q: "True friends _______ when you talk about your problems.", options: ["listen to", "laugh at", "fight with", "pick on"], correct: 0, explanation: "True friends **listen to** your problems." }
+                ],
+                [ // S6
+                    { q: "Someone who always looks sad and grumpy is...", options: ["cheerful", "gloomy", "polite", "humorous"], correct: 1, explanation: "**Gloomy** means feeling down or sad." },
+                    { q: "Good friends like to _______ secret thoughts with each other.", options: ["share", "shout", "fight", "hide"], correct: 0, explanation: "Friends **share** thoughts together." },
+                    { q: "A friend who forgives you easily is...", options: ["forgiving", "mean", "greedy", "dishonest"], correct: 0, explanation: "**Forgiving** friends don't hold grudges." },
+                    { q: "It is bad to _______ with friends over small games.", options: ["play", "argue", "talk", "study"], correct: 1, explanation: "Try not to **argue** over little things." },
+                    { q: "When you wait for your turn patiently, you show...", options: ["impatience", "patience", "rudeness", "greed"], correct: 1, explanation: "Waiting nicely shows **patience**." }
+                ],
+                [ // S7
+                    { q: "If you tell lies, people will call you...", options: ["honest", "dishonest", "trustworthy", "polite"], correct: 1, explanation: "Telling lies makes one **dishonest**." },
+                    { q: "A friend who helps you with homework is...", options: ["helpful", "selfish", "cranky", "naughty"], correct: 0, explanation: "Helping others makes you **helpful**." },
+                    { q: "We should _______ our pets gently.", options: ["look after", "shout at", "fight with", "pick on"], correct: 0, explanation: "We should **look after** pets with care." },
+                    { q: "A person who complains all day is...", options: ["cheerful", "cranky", "generous", "polite"], correct: 1, explanation: "**Cranky** people complain a lot." },
+                    { q: "Friends should _______ each other during races.", options: ["encourage", "discourage", "tease", "ignore"], correct: 0, explanation: "Good friends **encourage** each other." }
+                ],
+                [ // S8
+                    { q: "Which adjective means 'full of fun and energy'?", options: ["gloomy", "lively", "dishonest", "greedy"], correct: 1, explanation: "**Lively** means energetic and active." },
+                    { q: "Never _______ behind a friend's back.", options: ["talk nicely", "gossip", "cheer", "play"], correct: 1, explanation: "**Gossip** means talking bad about others." },
+                    { q: "Being _______ means treating everyone fairly.", options: ["fair", "selfish", "mean", "greedy"], correct: 0, explanation: "**Fair** means equal and just." },
+                    { q: "If you push in line, you are being...", options: ["polite", "rude", "caring", "patient"], correct: 1, explanation: "Cutting lines is **rude**." },
+                    { q: "Good friends value each other's...", options: ["feelings", "toys only", "money", "mistakes"], correct: 0, explanation: "Friends care about each other's **feelings**." }
+                ],
+                [ // S9
+                    { q: "Which adjective describes a sweet, gentle friend?", options: ["gentle", "hot-headed", "rough", "cranky"], correct: 0, explanation: "**Gentle** means soft and kind." },
+                    { q: "When you say sorry, you show...", options: ["politeness", "greed", "selfishness", "pride"], correct: 0, explanation: "Apologizing shows good manners and **politeness**." },
+                    { q: "Do not _______ at your classmates when they lose.", options: ["laugh", "cheer", "help", "smile"], correct: 0, explanation: "Don't **laugh** at others when they fail." },
+                    { q: "A friend who is always happy is...", options: ["cheerful", "gloomy", "bad-tempered", "sad"], correct: 0, explanation: "**Cheerful** means bright and happy!" },
+                    { q: "Friends should work together in a team with...", options: ["cooperation", "anger", "fights", "jealousy"], correct: 0, explanation: "Teamwork requires **cooperation**." }
+                ],
+                [ // S10
+                    { q: "What is the key quality of a best friend?", options: ["Loyalty and trust", "Having lots of toys", "Being mean", "Shouting loud"], correct: 0, explanation: "**Loyalty and trust** build true friendships!" },
+                    { q: "To have a good friend, you must first _______ one.", options: ["be", "buy", "fight", "shout at"], correct: 0, explanation: "To have a friend, **be** a friend!" },
+                    { q: "Always _______ your friends when they achieve something.", options: ["congratulate", "ignore", "envy", "scold"], correct: 0, explanation: "**Congratulate** friends on their success." },
+                    { q: "Which behavior builds strong trust?", options: ["Keeping secrets", "Telling lies", "Breaking promises", "Gossiping"], correct: 0, explanation: "**Keeping secrets** and promises builds trust." },
+                    { q: "A positive classroom is built with...", options: ["kindness & respect", "fights & noise", "teasing", "selfishness"], correct: 0, explanation: "**Kindness & respect** make a happy class!" }
+                ]
+            ],
+            2: [ // World 2: Verbs & Tenses (Stages 1-10)
+                [ // S1
+                    { q: "Past form of 'hug'?", options: ["hugged", "huged", "huggedd", "hugging"], correct: 0, explanation: "Short vowel sound $\rightarrow$ double consonant $\rightarrow$ **hugged**." },
+                    { q: "Yesterday, Ellie _______ her friend at the entrance.", options: ["greet", "greets", "greeted", "greeting"], correct: 2, explanation: "Past time word 'yesterday' $\rightarrow$ **greeted**." },
+                    { q: "Past tense of 'cry'?", options: ["cried", "cryed", "crys", "criedd"], correct: 0, explanation: "Consonant + y $\rightarrow$ remove y + add **-ied**." },
+                    { q: "Past tense of 'stay'?", options: ["staied", "stayed", "staydd", "staye"], correct: 1, explanation: "Vowel + y $\rightarrow$ keep y + add **-ed**." },
+                    { q: "Two years ago, we _______ in Primary 1.", options: ["are", "is", "was", "were"], correct: 3, explanation: "Plural past of 'are' is **were**." }
+                ],
+                [ // S2
+                    { q: "Past tense of 'stop'?", options: ["stoped", "stopped", "stopd", "stopping"], correct: 1, explanation: "Short vowel sound $\rightarrow$ double p $\rightarrow$ **stopped**." },
+                    { q: "Last week, my family _______ a movie.", options: ["watch", "watches", "watched", "watching"], correct: 2, explanation: "'Last week' requires past tense **watched**." },
+                    { q: "Past tense of 'bake'?", options: ["baked", "bakeed", "bakt", "baking"], correct: 0, explanation: "Ends in 'e' $\rightarrow$ just add **-d**." },
+                    { q: "Past tense of 'study'?", options: ["studyed", "studied", "studid", "studying"], correct: 1, explanation: "Consonant + y $\rightarrow$ **studied**." },
+                    { q: "Yesterday, he _______ very happy.", options: ["is", "am", "was", "were"], correct: 2, explanation: "Past tense of 'is' is **was**." }
+                ],
+                [ // S3
+                    { q: "Past tense of 'carry'?", options: ["carried", "carryed", "carriedd", "carries"], correct: 0, explanation: "Consonant + y $\rightarrow$ **carried**." },
+                    { q: "Ellie _______ her homework two hours ago.", options: ["finish", "finishes", "finished", "finishing"], correct: 2, explanation: "'Two hours ago' $\rightarrow$ **finished**." },
+                    { q: "Past tense of 'hop'?", options: ["hoped", "hopped", "hoppd", "hopping"], correct: 1, explanation: "Short vowel $\rightarrow$ double p $\rightarrow$ **hopped**." },
+                    { q: "Past tense of 'play'?", options: ["plaied", "played", "playd", "playing"], correct: 1, explanation: "Vowel + y $\rightarrow$ **played**." },
+                    { q: "They _______ excited about the picnic yesterday.", options: ["are", "was", "were", "be"], correct: 2, explanation: "'They' in past tense uses **were**." }
+                ],
+                [ // S4
+                    { q: "Past tense of 'smile'?", options: ["smiled", "smileed", "smild", "smiling"], correct: 0, explanation: "Ends in e $\rightarrow$ **smiled**." },
+                    { q: "Last night, the baby _______ loudly.", options: ["cry", "cries", "cried", "crying"], correct: 2, explanation: "'Last night' $\rightarrow$ **cried**." },
+                    { q: "Past tense of 'clap'?", options: ["claped", "clapped", "clapd", "clapping"], correct: 1, explanation: "Double p $\rightarrow$ **clapped**." },
+                    { q: "Past tense of 'try'?", options: ["tryed", "tried", "trid", "trying"], correct: 1, explanation: "Change y to i $\rightarrow$ **tried**." },
+                    { q: "She _______ at school yesterday.", options: ["was", "were", "is", "are"], correct: 0, explanation: "Past tense of 'she is' $\rightarrow$ **she was**." }
+                ],
+                [ // S5
+                    { q: "Past tense of 'drop'?", options: ["droped", "dropped", "dropd", "dropping"], correct: 1, explanation: "Double p $\rightarrow$ **dropped**." },
+                    { q: "We _______ a gift for our teacher last Friday.", options: ["prepare", "prepares", "prepared", "preparing"], correct: 2, explanation: "Past tense $\rightarrow$ **prepared**." },
+                    { q: "Past tense of 'tidy'?", options: ["tidyed", "tidied", "tidid", "tidying"], correct: 1, explanation: "Change y to i $\rightarrow$ **tidied**." },
+                    { q: "Past tense of 'enjoy'?", options: ["enjoied", "enjoyed", "enjoyd", "enjoying"], correct: 1, explanation: "Vowel + y $\rightarrow$ **enjoyed**." },
+                    { q: "I _______ late for school this morning.", options: ["was", "were", "am", "is"], correct: 0, explanation: "'I' in past tense $\rightarrow$ **was**." }
+                ],
+                [ // S6
+                    { q: "Past tense of 'plan'?", options: ["planed", "planned", "pland", "planning"], correct: 1, explanation: "Double n $\rightarrow$ **planned**." },
+                    { q: "This morning, Ellie _______ her teeth.", options: ["brush", "brushes", "brushed", "brushing"], correct: 2, explanation: "Past action $\rightarrow$ **brushed**." },
+                    { q: "Past tense of 'marry'?", options: ["marryed", "married", "marrid", "marrying"], correct: 1, explanation: "Change y to i $\rightarrow$ **married**." },
+                    { q: "Past tense of 'dance'?", options: ["danced", "danceed", "danct", "dancing"], correct: 0, explanation: "Ends in e $\rightarrow$ **danced**." },
+                    { q: "The boys _______ happy with their test results.", options: ["was", "were", "is", "are"], correct: 1, explanation: "Plural subject 'boys' $\rightarrow$ **were**." }
+                ],
+                [ // S7
+                    { q: "Past tense of 'skip'?", options: ["skiped", "skipped", "skipd", "skipping"], correct: 1, explanation: "Double p $\rightarrow$ **skipped**." },
+                    { q: "Mom _______ delicious soup yesterday.", options: ["cook", "cooks", "cooked", "cooking"], correct: 2, explanation: "Past tense $\rightarrow$ **cooked**." },
+                    { q: "Past tense of 'worry'?", options: ["worryed", "worried", "worrid", "worrying"], correct: 1, explanation: "Consonant + y $\rightarrow$ **worried**." },
+                    { q: "Past tense of 'use'?", options: ["used", "useed", "ust", "using"], correct: 0, explanation: "Add -d $\rightarrow$ **used**." },
+                    { q: "There _______ many stars in the sky last night.", options: ["was", "were", "is", "are"], correct: 1, explanation: "Plural 'stars' in past tense $\rightarrow$ **were**." }
+                ],
+                [ // S8
+                    { q: "Past tense of 'jog'?", options: ["joged", "jogged", "joggd", "jogging"], correct: 1, explanation: "Double g $\rightarrow$ **jogged**." },
+                    { q: "They _______ for the bus 10 minutes ago.", options: ["wait", "waits", "waited", "waiting"], correct: 2, explanation: "'10 minutes ago' $\rightarrow$ **waited**." },
+                    { q: "Past tense of 'reply'?", options: ["replyed", "replied", "replid", "replying"], correct: 1, explanation: "Change y to i $\rightarrow$ **replied**." },
+                    { q: "Past tense of 'like'?", options: ["liked", "likeed", "likt", "liking"], correct: 0, explanation: "Add -d $\rightarrow$ **liked**." },
+                    { q: "My cat _______ sleeping on the sofa all afternoon.", options: ["was", "were", "is", "are"], correct: 0, explanation: "Singular subject 'cat' $\rightarrow$ **was**." }
+                ],
+                [ // S9
+                    { q: "Past tense of 'pat'?", options: ["pated", "patted", "patd", "patting"], correct: 1, explanation: "Double t $\rightarrow$ **patted**." },
+                    { q: "The student _______ the teacher's question.", options: ["answer", "answers", "answered", "answering"], correct: 2, explanation: "Past action $\rightarrow$ **answered**." },
+                    { q: "Past tense of 'dry'?", options: ["dryed", "dried", "drid", "drying"], correct: 1, explanation: "Change y to i $\rightarrow$ **dried**." },
+                    { q: "Past tense of 'wave'?", options: ["waved", "waveed", "wavd", "waving"], correct: 0, explanation: "Add -d $\rightarrow$ **waved**." },
+                    { q: "Who _______ the winner of yesterday's game?", options: ["was", "were", "is", "are"], correct: 0, explanation: "Singular subject in past $\rightarrow$ **was**." }
+                ],
+                [ // S10
+                    { q: "Past tense of 'can'?", options: ["caned", "could", "canned", "would"], correct: 1, explanation: "Irregular auxiliary verb 'can' $\rightarrow$ **could**." },
+                    { q: "The children _______ all their vegetables yesterday.", options: ["finish", "finished", "finishing", "finishes"], correct: 1, explanation: "Past tense $\rightarrow$ **finished**." },
+                    { q: "Past tense of 'empty'?", options: ["emptyed", "emptied", "emptid", "emptying"], correct: 1, explanation: "Consonant + y $\rightarrow$ **emptied**." },
+                    { q: "Past tense of 'hop'?", options: ["hopped", "hoped", "hoppd", "hopping"], correct: 0, explanation: "Double p $\rightarrow$ **hopped**." },
+                    { q: "We _______ at the park yesterday afternoon.", options: ["was", "were", "are", "is"], correct: 1, explanation: "We $\rightarrow$ **were**." }
+                ]
+            ],
+            3: [ // World 3: Classroom Prepositions & Advice (Stages 1-10)
+                [ // S1
+                    { q: "If Melody is upset, she _______ throw a tantrum.", options: ["have to", "should", "shouldn't", "can"], correct: 2, explanation: "**Shouldn't** shows what is wrong to do." },
+                    { q: "To have a good friend, you _______ be a good friend.", options: ["have to", "shouldn't", "has to", "are"], correct: 0, explanation: "**Have to** shows necessity." },
+                    { q: "Don sits next to the window. Don sits _______.", options: ["by the window", "at the back of", "between window", "under window"], correct: 0, explanation: "Seating location $\rightarrow$ **by the window**." },
+                    { q: "My friends comfort me _______ I feel disappointed.", options: ["and", "when", "but", "so"], correct: 1, explanation: "Conjunction connecting condition $\rightarrow$ **when**." },
+                    { q: "Paul sits _______ Amy and Tom in classroom.", options: ["behind", "on", "between", "at"], correct: 2, explanation: "Middle of two people uses **between A and B**." }
+                ],
+                [ // S2
+                    { q: "You _______ raise your hand before speaking in class.", options: ["should", "shouldn't", "has to", "doesn't have to"], correct: 0, explanation: "Good advice $\rightarrow$ **should**." },
+                    { q: "Ellie sits at the very front row. She sits _______ the classroom.", options: ["at the front of", "at the back of", "behind", "between"], correct: 0, explanation: "Front row $\rightarrow$ **at the front of**." },
+                    { q: "You _______ run inside the corridor. It is dangerous!", options: ["should", "shouldn't", "have to", "can"], correct: 1, explanation: "Dangerous behavior $\rightarrow$ **shouldn't**." },
+                    { q: "The whiteboard is _______ the classroom.", options: ["at the front of", "behind", "between", "on left"], correct: 0, explanation: "Board is located **at the front of** the class." },
+                    { q: "We wash hands _______ we eat our meals.", options: ["before", "after", "when", "behind"], correct: 0, explanation: "Hygiene advice $\rightarrow$ **before** eating." }
+                ],
+                [ // S3
+                    { q: "Students _______ bring their textbooks every day.", options: ["have to", "shouldn't", "has to", "are"], correct: 0, explanation: "School rule $\rightarrow$ **have to**." },
+                    { q: "May sits _______ the wall on the right side.", options: ["by the wall", "between", "middle of", "under"], correct: 0, explanation: "Wall seating $\rightarrow$ **by the wall**." },
+                    { q: "You _______ talk loudly while the teacher is explaining.", options: ["should", "shouldn't", "have to", "must"], correct: 1, explanation: "Class rule $\rightarrow$ **shouldn't**." },
+                    { q: "Tom sits in row 5. He sits _______ the classroom.", options: ["at the back of", "at the front of", "between", "on"], correct: 0, explanation: "Back row $\rightarrow$ **at the back of**." },
+                    { q: "Be kind to others _______ you want them to be kind to you.", options: ["if", "so", "but", "or"], correct: 0, explanation: "Condition connector $\rightarrow$ **if**." }
+                ],
+                [ // S4
+                    { q: "You _______ eat snacks during lesson time.", options: ["shouldn't", "should", "have to", "can"], correct: 0, explanation: "Classroom rule $\rightarrow$ **shouldn't**." },
+                    { q: "The teacher stands _______ the blackboard.", options: ["in front of", "behind", "between", "under"], correct: 0, explanation: "Position $\rightarrow$ **in front of**." },
+                    { q: "We _______ listen quietly when others present.", options: ["should", "shouldn't", "has to", "wouldn't"], correct: 0, explanation: "Good advice $\rightarrow$ **should**." },
+                    { q: "Lucy is sitting _______ my left.", options: ["on", "at", "in", "by"], correct: 0, explanation: "Direction phrase $\rightarrow$ **on my left**." },
+                    { q: "You _______ push others when queuing up.", options: ["shouldn't", "should", "have to", "can"], correct: 0, explanation: "Safety rule $\rightarrow$ **shouldn't**." }
+                ],
+                [ // S5
+                    { q: "Every student _______ wear a school uniform.", options: ["has to", "have to", "shouldn't", "is"], correct: 0, explanation: "Singular subject 'student' $\rightarrow$ **has to**." },
+                    { q: "I sit in the center seat. I sit _______ the classroom.", options: ["in the middle of", "by the wall", "behind", "on left"], correct: 0, explanation: "Center position $\rightarrow$ **in the middle of**." },
+                    { q: "You _______ say 'sorry' when you bump into someone.", options: ["should", "shouldn't", "has to", "doesn't have to"], correct: 0, explanation: "Polite advice $\rightarrow$ **should**." },
+                    { q: "The clock is hanging _______ the door.", options: ["above", "under", "between", "in"], correct: 0, explanation: "Hanging higher $\rightarrow$ **above**." },
+                    { q: "Drink water _______ you feel thirsty after PE class.", options: ["when", "but", "before", "so"], correct: 0, explanation: "Time condition $\rightarrow$ **when**." }
+                ],
+                [ // S6
+                    { q: "You _______ leave your trash on the desk.", options: ["shouldn't", "should", "have to", "must"], correct: 0, explanation: "Cleanliness advice $\rightarrow$ **shouldn't**." },
+                    { q: "Ben sits _______ Chloe and Jack.", options: ["between", "in front of", "on", "at"], correct: 0, explanation: "Two people boundary $\rightarrow$ **between A and B**." },
+                    { q: "We _______ keep our classroom clean and tidy.", options: ["should", "shouldn't", "has to", "don't"], correct: 0, explanation: "Positive advice $\rightarrow$ **should**." },
+                    { q: "There is a poster _______ the back wall.", options: ["on", "in", "at", "between"], correct: 0, explanation: "Wall surface $\rightarrow$ **on**." },
+                    { q: "Always check your school bag _______ you leave home.", options: ["before", "after", "between", "on"], correct: 0, explanation: "Time sequence $\rightarrow$ **before**." }
+                ],
+                [ // S7
+                    { q: "You _______ play with scissors carefully.", options: ["have to", "shouldn't", "has to", "are"], correct: 0, explanation: "Safety requirement $\rightarrow$ **have to**." },
+                    { q: "The bookcase is _______ the corner of the room.", options: ["in", "on", "between", "under"], correct: 0, explanation: "Corner position $\rightarrow$ **in the corner**." },
+                    { q: "You _______ share your sports equipment during recess.", options: ["should", "shouldn't", "has to", "doesn't"], correct: 0, explanation: "Sharing advice $\rightarrow$ **should**." },
+                    { q: "Leo sits on my right, so I sit _______ his left.", options: ["on", "at", "in", "by"], correct: 0, explanation: "Direction phrase $\rightarrow$ **on his left**." },
+                    { q: "Wash your hands _______ handling food.", options: ["before", "after", "between", "on"], correct: 0, explanation: "Pre-task rule $\rightarrow$ **before**." }
+                ],
+                [ // S8
+                    { q: "You _______ tease your classmates about their marks.", options: ["shouldn't", "should", "have to", "must"], correct: 0, explanation: "Respect advice $\rightarrow$ **shouldn't**." },
+                    { q: "The teacher's desk is _______ the classroom.", options: ["at the front of", "behind", "under", "between"], correct: 0, explanation: "Front location $\rightarrow$ **at the front of**." },
+                    { q: "We _______ turn off the lights when leaving the room.", options: ["should", "shouldn't", "has to", "are"], correct: 0, explanation: "Eco advice $\rightarrow$ **should**." },
+                    { q: "Sit quietly _______ the exam starts.", options: ["when", "so", "but", "and"], correct: 0, explanation: "Time marker $\rightarrow$ **when**." },
+                    { q: "Put your books _______ your school bag.", options: ["into", "on", "between", "at"], correct: 0, explanation: "Movement inside $\rightarrow$ **into**." }
+                ],
+                [ // S9
+                    { q: "You _______ write on school desks.", options: ["shouldn't", "should", "have to", "must"], correct: 0, explanation: "Prohibited action $\rightarrow$ **shouldn't**." },
+                    { q: "The recycling bin is _______ the door.", options: ["by", "between", "on", "in"], correct: 0, explanation: "Near location $\rightarrow$ **by the door**." },
+                    { q: "Students _______ raise questions politely.", options: ["should", "shouldn't", "has to", "is"], correct: 0, explanation: "Good conduct $\rightarrow$ **should**." },
+                    { q: "Ellie sits _______ the middle row.", options: ["in", "on", "at", "by"], correct: 0, explanation: "Row position $\rightarrow$ **in the middle row**." },
+                    { q: "Ask for permission _______ borrowing stationery.", options: ["before", "after", "when", "under"], correct: 0, explanation: "Sequence $\rightarrow$ **before**." }
+                ],
+                [ // S10
+                    { q: "Rules are important because we _______ stay safe.", options: ["have to", "shouldn't", "has to", "are"], correct: 0, explanation: "Necessity $\rightarrow$ **have to**." },
+                    { q: "Our classroom is _______ the second floor.", options: ["on", "in", "at", "by"], correct: 0, explanation: "Floors $\rightarrow$ **on the second floor**." },
+                    { q: "You _______ encourage your group members during games.", options: ["should", "shouldn't", "has to", "mustn't"], correct: 0, explanation: "Positive advice $\rightarrow$ **should**." },
+                    { q: "Stand _______ your desk when answering the teacher.", options: ["by", "under", "between", "on"], correct: 0, explanation: "Position $\rightarrow$ **by your desk**." },
+                    { q: "Always do your best _______ facing a tough question!", options: ["when", "but", "so", "or"], correct: 0, explanation: "Condition $\rightarrow$ **when**." }
+                ]
+            ]
+        };
+
+        /* --- Engine & Game State Variables --- */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let currentWorld = 1;
+        let currentStage = 1;
+        let selectedTab = 1;
+
+        let score = 0;
+        let collectedStars = 0;
+        let activeQuiz = null;
+        let isGameRunning = false;
+
+        // Customization & Shop State
+        let currentHat = 'crown'; 
+        let currentOutfit = 'pink'; 
+        let unlockedItems = ['crown', 'pink', 'ribbon'];
+
+        const SHOP_ITEMS = [
+            { id: 'pink', name: 'Sakura Dress 🌸', category: 'outfit', price: 0, color: '#ffb7c5' },
+            { id: 'violet', name: 'Magical Violet 💜', category: 'outfit', price: 100, color: '#c7ceea' },
+            { id: 'yellow', name: 'Sunshine Yellow 💛', category: 'outfit', price: 150, color: '#fff5ba' },
+            { id: 'mint', name: 'Mint Princess 💚', category: 'outfit', price: 200, color: '#b5ead7' },
+            
+            { id: 'crown', name: 'Golden Crown 👑', category: 'hat', price: 0 },
+            { id: 'cat', name: 'Cute Cat Ears 🐱', category: 'hat', price: 120 },
+            { id: 'flower', name: 'Flower Wreath 🌸', category: 'hat', price: 150 },
+            { id: 'ribbon', name: 'Pink Ribbon 🎀', category: 'hat', price: 80 },
+
+            { id: 'hint', name: 'Exam Hint Star ✨ (Remove 2 Wrong Options)', category: 'power', price: 100 }
+        ];
+
+        // Player / Hero Object
+        const hero = {
+            x: 50,
+            y: 0,
+            width: 42,
+            height: 52,
+            vx: 0,
+            vy: 0,
+            speed: 4.5,
+            jumpPower: -12,
+            grounded: false,
+            canDoubleJump: false,
+            facingRight: true,
+            frame: 0,
+            animTimer: 0,
+            lastSafeX: 50,
+            lastSafeY: 0
+        };
+
+        // Physics & World Mechanics
+        const gravity = 0.42;
+        let cameraX = 0;
+        let levelLength = 2400;
+
+        let platforms = [];
+        let blocks = [];
+        let stars = [];
+        let goalFlag = { x: 2350, y: 0, width: 30, height: 160 };
+
+        const keys = { left: false, right: false, jump: false };
+
+        function setupCanvasSize() {
+            const container = document.getElementById('game-container');
+            if (container) {
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            }
+        }
+        window.addEventListener('resize', setupCanvasSize);
+
+        /* --- World & Level Generator --- */
+        function buildLevel(worldId, stageId) {
+            platforms = [];
+            blocks = [];
+            stars = [];
+
+            const floorY = canvas.height - 50;
+
+            // Varied platform layouts based on stageId
+            const gapOffset = (stageId * 15) % 80;
+
+            platforms.push({ x: 0, y: floorY, w: 800 - gapOffset, h: 50 });
+            platforms.push({ x: 880 - gapOffset, y: floorY, w: 750, h: 50 });
+            platforms.push({ x: 1700, y: floorY, w: 800, h: 50 });
+
+            // Floating Stepping-stone Platforms
+            platforms.push({ x: 220 + gapOffset, y: floorY - 85 - (stageId % 3) * 10, w: 140, h: 20 });
+            platforms.push({ x: 450, y: floorY - 120, w: 150, h: 20 });
+            platforms.push({ x: 700 + gapOffset, y: floorY - 90, w: 140, h: 20 });
+            platforms.push({ x: 1050, y: floorY - 110 - (stageId % 2) * 15, w: 160, h: 20 });
+            platforms.push({ x: 1380 - gapOffset, y: floorY - 130, w: 150, h: 20 });
+            platforms.push({ x: 1800, y: floorY - 95, w: 160, h: 20 });
+
+            // Question Blocks
+            const questions = QUESTION_BANK[worldId][stageId - 1];
+            const blockPositions = [
+                { x: 280 + gapOffset, y: floorY - 165 },
+                { x: 500, y: floorY - 200 },
+                { x: 1100, y: floorY - 190 },
+                { x: 1430 - gapOffset, y: floorY - 210 },
+                { x: 1850, y: floorY - 175 }
+            ];
+
+            for (let i = 0; i < 5; i++) {
+                blocks.push({
+                    x: blockPositions[i].x,
+                    y: blockPositions[i].y,
+                    w: 38,
+                    h: 38,
+                    hit: false,
+                    qData: questions[i]
+                });
+            }
+
+            // Stars
+            const starPositions = [
+                { x: 180, y: floorY - 65 },
+                { x: 620 + gapOffset, y: floorY - 65 },
+                { x: 1250, y: floorY - 65 },
+                { x: 1600 - gapOffset, y: floorY - 65 },
+                { x: 2100, y: floorY - 65 }
+            ];
+            starPositions.forEach(p => {
+                stars.push({ x: p.x, y: p.y, w: 26, h: 26, collected: false });
+            });
+
+            goalFlag.x = 2350;
+            goalFlag.y = floorY - 140;
+
+            // Reset Hero Position
+            hero.x = 50;
+            hero.y = floorY - hero.height;
+            hero.vx = 0;
+            hero.vy = 0;
+            hero.lastSafeX = 50;
+            hero.lastSafeY = floorY - hero.height;
+            cameraX = 0;
+            collectedStars = 0;
+            updateHUD();
+        }
+
+        /* --- UI & Stage Select Logic --- */
+        function switchWorldTab(worldId) {
+            selectedTab = worldId;
+            document.getElementById('tab-w1').className = selectedTab === 1 ? "px-3 py-1.5 rounded-xl font-bold text-xs bg-pink-500 text-white shadow" : "px-3 py-1.5 rounded-xl font-bold text-xs bg-gray-200 text-gray-700 hover:bg-pink-200";
+            document.getElementById('tab-w2').className = selectedTab === 2 ? "px-3 py-1.5 rounded-xl font-bold text-xs bg-sky-500 text-white shadow" : "px-3 py-1.5 rounded-xl font-bold text-xs bg-gray-200 text-gray-700 hover:bg-sky-200";
+            document.getElementById('tab-w3').className = selectedTab === 3 ? "px-3 py-1.5 rounded-xl font-bold text-xs bg-emerald-500 text-white shadow" : "px-3 py-1.5 rounded-xl font-bold text-xs bg-gray-200 text-gray-700 hover:bg-emerald-200";
+            renderStageGrid();
+        }
+
+        /* --- Modal Handlers & Sound Synthesizer --- */
+        function openNotebook() {
+            document.getElementById('notebook-modal').classList.remove('hidden');
+        }
+
+        function closeNotebook() {
+            document.getElementById('notebook-modal').classList.add('hidden');
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-btn');
+            if (soundEnabled) {
+                btn.innerHTML = `<i class="fa-solid fa-volume-high"></i> <span class="hidden sm:inline">Sound</span>`;
+                btn.className = "bg-blue-100 text-blue-700 text-xs sm:text-sm px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 border border-blue-200 hover:bg-blue-200 transition";
+            } else {
+                btn.innerHTML = `<i class="fa-solid fa-volume-xmark"></i> <span class="hidden sm:inline">Mute</span>`;
+                btn.className = "bg-gray-100 text-gray-500 text-xs sm:text-sm px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 border border-gray-300 hover:bg-gray-200 transition";
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+                if (type === 'jump') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'star') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'block') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(200, now);
+                    osc.frequency.setValueAtTime(400, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.18);
+                    osc.start(now);
+                    osc.stop(now + 0.18);
+                } else if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.1);
+                    osc.frequency.setValueAtTime(659.25, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(180, now + 0.15);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch (e) {
+                console.log("Audio not supported or restricted", e);
+            }
+        }
+
+        /* --- Question Pop-up & Quiz Modal Handlers --- */
+        function triggerQuiz(qData) {
+            activeQuiz = qData;
+            document.getElementById('quiz-question').innerHTML = qData.q;
+            
+            const optionsDiv = document.getElementById('quiz-options');
+            optionsDiv.innerHTML = '';
+
+            const feedbackDiv = document.getElementById('quiz-feedback');
+            feedbackDiv.className = 'hidden p-3 rounded-2xl text-xs sm:text-sm mb-3';
+            feedbackDiv.innerHTML = '';
+
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            const hintBtn = document.getElementById('hint-btn');
+            if (score >= 50) {
+                hintBtn.classList.remove('hidden');
+            } else {
+                hintBtn.classList.add('hidden');
+            }
+
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.id = `opt-btn-${idx}`;
+                btn.onclick = () => handleAnswer(idx, qData);
+                btn.className = "w-full text-left p-3 rounded-2xl border-2 border-gray-100 bg-gray-50 hover:bg-pink-50 hover:border-pink-300 font-bold text-xs sm:text-sm text-slate-700 transition flex items-center gap-2";
+                btn.innerHTML = `<span class="w-6 h-6 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center text-xs font-black">${String.fromCharCode(65 + idx)}</span> ${opt}`;
+                optionsDiv.appendChild(btn);
+            });
+
+            document.getElementById('quiz-modal').classList.remove('hidden');
+        }
+
+        function useHint() {
+            if (!activeQuiz || score < 50) return;
+            score -= 50;
+            updateHUD();
+
+            const hintBtn = document.getElementById('hint-btn');
+            hintBtn.classList.add('hidden');
+
+            let wrongIndices = [];
+            activeQuiz.options.forEach((_, idx) => {
+                if (idx !== activeQuiz.correct) wrongIndices.push(idx);
+            });
+
+            // Randomly disable up to 2 wrong options
+            wrongIndices.sort(() => Math.random() - 0.5);
+            const toDisable = wrongIndices.slice(0, 2);
+
+            toDisable.forEach(idx => {
+                const btn = document.getElementById(`opt-btn-${idx}`);
+                if (btn) {
+                    btn.disabled = true;
+                    btn.className = "w-full text-left p-3 rounded-2xl border-2 border-gray-200 bg-gray-100 font-bold text-xs sm:text-sm text-gray-400 opacity-50 cursor-not-allowed flex items-center gap-2";
+                }
+            });
+            playSound('star');
+        }
+
+        function handleAnswer(selectedIndex, qData) {
+            const feedbackDiv = document.getElementById('quiz-feedback');
+            const optionsDiv = document.getElementById('quiz-options');
+            const buttons = optionsDiv.querySelectorAll('button');
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === qData.correct) {
+                    btn.className = "w-full text-left p-3 rounded-2xl border-2 border-emerald-400 bg-emerald-50 font-bold text-xs sm:text-sm text-emerald-800 flex items-center gap-2";
+                } else if (idx === selectedIndex) {
+                    btn.className = "w-full text-left p-3 rounded-2xl border-2 border-rose-400 bg-rose-50 font-bold text-xs sm:text-sm text-rose-800 flex items-center gap-2";
+                }
+            });
+
+            if (selectedIndex === qData.correct) {
+                playSound('correct');
+                score += 100;
+                updateHUD();
+                feedbackDiv.className = "p-3 rounded-2xl text-xs sm:text-sm mb-3 bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold block";
+                feedbackDiv.innerHTML = `🎉 Correct! +100 Points<br><span class="font-normal mt-1 block">${qData.explanation}</span>`;
+            } else {
+                playSound('wrong');
+                feedbackDiv.className = "p-3 rounded-2xl text-xs sm:text-sm mb-3 bg-rose-100 text-rose-800 border border-rose-300 font-bold block";
+                feedbackDiv.innerHTML = `❌ Not quite!<br><span class="font-normal mt-1 block">${qData.explanation}</span>`;
+            }
+
+            document.getElementById('hint-btn').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+        }
+
+        function closeQuizModal() {
+            document.getElementById('quiz-modal').classList.add('hidden');
+            activeQuiz = null;
+            requestAnimationFrame(gameLoop);
+        }
+
+        /* --- Controls Setup (Keyboard & Touch) --- */
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+            if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+            if ((e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') && hero.grounded) {
+                keys.jump = true;
+                hero.vy = hero.jumpPower;
+                hero.grounded = false;
+                playSound('jump');
+            }
+        });
+
+        window.addEventListener('keyup', e => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+            if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') keys.jump = false;
+        });
+
+        // Touch Control Listeners
+        const btnLeft = document.getElementById('btn-left');
+        const btnRight = document.getElementById('btn-right');
+        const btnJump = document.getElementById('btn-jump');
+
+        if (btnLeft && btnRight && btnJump) {
+            btnLeft.addEventListener('touchstart', e => { e.preventDefault(); keys.left = true; });
+            btnLeft.addEventListener('touchend', e => { e.preventDefault(); keys.left = false; });
+            btnRight.addEventListener('touchstart', e => { e.preventDefault(); keys.right = true; });
+            btnRight.addEventListener('touchend', e => { e.preventDefault(); keys.right = false; });
+            btnJump.addEventListener('touchstart', e => {
+                e.preventDefault();
+                if (hero.grounded) {
+                    hero.vy = hero.jumpPower;
+                    hero.grounded = false;
+                    playSound('jump');
+                }
+            });
+        }
+
+        function renderStageGrid() {
+            const grid = document.getElementById('stages-grid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const btn = document.createElement('button');
+                btn.onclick = () => startGame(selectedTab, i);
+                btn.className = "py-2.5 px-2 bg-gradient-to-b from-white to-pink-50 hover:from-pink-100 hover:to-pink-200 border-2 border-pink-200 hover:border-pink-400 rounded-2xl shadow-sm flex flex-col items-center justify-center transition transform hover:-translate-y-0.5 active:scale-95";
+                btn.innerHTML = `
+                    <span class="text-xs text-gray-400 font-bold">Stage</span>
+                    <span class="text-lg font-extrabold text-pink-600">${i}</span>
+                `;
+                grid.appendChild(btn);
+            }
+        }
+
+        function startGame(worldId, stageId) {
+            currentWorld = worldId || 1;
+            currentStage = stageId || 1;
+
+            const categoryTitles = { 1: "World 1: Friends", 2: "World 2: Verbs", 3: "World 3: Advice" };
+            document.getElementById('world-title').innerText = `${categoryTitles[currentWorld]} - Stage ${currentStage}`;
+            
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('victory-modal').classList.add('hidden');
+
+            setupCanvasSize();
+            buildLevel(currentWorld, currentStage);
+            isGameRunning = true;
+            activeQuiz = null;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function returnToMenu() {
+            isGameRunning = false;
+            document.getElementById('victory-modal').classList.add('hidden');
+            document.getElementById('quiz-modal').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+            renderStageGrid();
+        }
+
+        function nextStage() {
+            if (currentStage < 10) {
+                startGame(currentWorld, currentStage + 1);
+            } else if (currentWorld < 3) {
+                startGame(currentWorld + 1, 1);
+            } else {
+                returnToMenu();
+            }
+        }
+
+        /* --- Main Render & Physics --- */
+        function gameLoop() {
+            if (!isGameRunning) return;
+            update();
+            draw();
+            if (!activeQuiz) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function update() {
+            if (!isGameRunning || activeQuiz) return;
+
+            // Horizontal Movement
+            if (keys.left) {
+                hero.vx = -hero.speed;
+                hero.facingRight = false;
+            } else if (keys.right) {
+                hero.vx = hero.speed;
+                hero.facingRight = true;
+            } else {
+                hero.vx = 0;
+            }
+
+            hero.vy += gravity;
+            hero.x += hero.vx;
+            if (hero.x < 0) hero.x = 0;
+
+            hero.y += hero.vy;
+            hero.grounded = false;
+
+            // Platform Collisions
+            platforms.forEach(p => {
+                if (hero.x + hero.width * 0.8 > p.x && hero.x + hero.width * 0.2 < p.x + p.w) {
+                    if (hero.vy >= 0 && hero.y + hero.height >= p.y && hero.y + hero.height <= p.y + p.h + hero.vy + 4) {
+                        hero.y = p.y - hero.height;
+                        hero.vy = 0;
+                        hero.grounded = true;
+                        hero.canDoubleJump = false;
+
+                        hero.lastSafeX = hero.x;
+                        hero.lastSafeY = hero.y;
+                    }
+                }
+            });
+
+            // Blocks Collision
+            blocks.forEach(b => {
+                if (!b.hit && hero.x + hero.width > b.x && hero.x < b.x + b.w) {
+                    if (hero.vy < 0 && hero.y <= b.y + b.h && hero.y >= b.y) {
+                        hero.vy = 2;
+                        b.hit = true;
+                        playSound('block');
+                        triggerQuiz(b.qData);
+                    }
+                }
+            });
+
+            // Stars
+            stars.forEach(s => {
+                if (!s.collected && hero.x + hero.width > s.x && hero.x < s.x + s.w &&
+                    hero.y + hero.height > s.y && hero.y < s.y + s.h) {
+                    s.collected = true;
+                    collectedStars++;
+                    score += 50;
+                    playSound('star');
+                    updateHUD();
+                }
+            });
+
+            // Goal
+            if (hero.x + hero.width >= goalFlag.x) {
+                isGameRunning = false;
+                showVictoryScreen();
+            }
+
+            // Fall Checkpoint Respawn
+            if (hero.y > canvas.height + 60) {
+                hero.x = hero.lastSafeX;
+                hero.y = hero.lastSafeY - 10;
+                hero.vx = 0;
+                hero.vy = 0;
+            }
+
+            // Camera Tracking
+            const targetCamX = hero.x - canvas.width * 0.35;
+            cameraX += (targetCamX - cameraX) * 0.1;
+            if (cameraX < 0) cameraX = 0;
+            if (cameraX > levelLength - canvas.width) cameraX = levelLength - canvas.width;
+
+            hero.animTimer++;
+            if (hero.animTimer % 8 === 0) hero.frame = (hero.frame + 1) % 2;
+        }
+
+        /* --- Drawing & Customized Shop Look --- */
+        function drawHeroCharacter(ctx) {
+            ctx.save();
+            ctx.translate(hero.x + hero.width / 2, hero.y + hero.height / 2);
+            if (!hero.facingRight) ctx.scale(-1, 1);
+
+            const bobY = (hero.vx !== 0 && hero.grounded) ? Math.sin(hero.animTimer * 0.3) * 3 : 0;
+
+            const outfitColors = {
+                pink: '#ffb7c5',
+                violet: '#c7ceea',
+                yellow: '#fff5ba',
+                mint: '#b5ead7'
+            };
+            const mainOutfitColor = outfitColors[currentOutfit] || '#ffb7c5';
+
+            // 1. Bunny Ears
+            const earBounce = hero.vy < 0 ? -4 : (hero.vy > 0 ? 3 : Math.sin(hero.animTimer * 0.15) * 2);
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#f4abb5';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.ellipse(-8, -28 + earBounce + bobY, 6, 14, -0.1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffc0cb';
+            ctx.beginPath();
+            ctx.ellipse(-8, -28 + earBounce + bobY, 3, 9, -0.1, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.ellipse(8, -28 + earBounce + bobY, 6, 14, 0.1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = '#ffc0cb';
+            ctx.beginPath();
+            ctx.ellipse(8, -28 + earBounce + bobY, 3, 9, 0.1, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 2. Dress / Body
+            ctx.fillStyle = mainOutfitColor;
+            ctx.beginPath();
+            ctx.roundRect(-hero.width / 2 + 2, -hero.height / 2 + 18 + bobY, hero.width - 4, hero.height - 20, 14);
+            ctx.fill();
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(-8, -2 + bobY, 16, 14);
+
+            // 3. Head / Face
+            ctx.fillStyle = '#fff4e6';
+            ctx.beginPath();
+            ctx.arc(0, -10 + bobY, 17, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#2d3436';
+            ctx.beginPath();
+            ctx.arc(6, -11 + bobY, 3, 0, Math.PI * 2);
+            ctx.arc(-2, -11 + bobY, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(7, -13 + bobY, 1, 0, Math.PI * 2);
+            ctx.arc(-1, -13 + bobY, 1, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cheeks
+            ctx.fillStyle = '#ff8fa3';
+            ctx.beginPath();
+            ctx.arc(9, -6 + bobY, 3.5, 0, Math.PI * 2);
+            ctx.arc(-5, -6 + bobY, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mouth
+            ctx.strokeStyle = '#d63031';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(2, -6 + bobY, 2, 0.1, Math.PI - 0.1);
+            ctx.stroke();
+
+            // 4. Equipped Hat / Head Accessory
+            if (currentHat === 'crown') {
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.moveTo(-8, -25 + bobY);
+                ctx.lineTo(-10, -32 + bobY);
+                ctx.lineTo(-4, -28 + bobY);
+                ctx.lineTo(0, -34 + bobY);
+                ctx.lineTo(4, -28 + bobY);
+                ctx.lineTo(10, -32 + bobY);
+                ctx.lineTo(8, -25 + bobY);
+                ctx.closePath();
+                ctx.fill();
+            } else if (currentHat === 'cat') {
+                ctx.fillStyle = '#4b5563';
+                ctx.beginPath();
+                ctx.moveTo(-12, -22 + bobY);
+                ctx.lineTo(-16, -32 + bobY);
+                ctx.lineTo(-6, -26 + bobY);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.moveTo(12, -22 + bobY);
+                ctx.lineTo(16, -32 + bobY);
+                ctx.lineTo(6, -26 + bobY);
+                ctx.fill();
+            } else if (currentHat === 'flower') {
+                ctx.fillStyle = '#ff7675';
+                ctx.beginPath();
+                ctx.arc(-6, -24 + bobY, 4, 0, Math.PI * 2);
+                ctx.arc(2, -26 + bobY, 4, 0, Math.PI * 2);
+                ctx.arc(8, -24 + bobY, 4, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (currentHat === 'ribbon') {
+                ctx.fillStyle = '#e84393';
+                ctx.beginPath();
+                ctx.ellipse(-6, -24 + bobY, 5, 3, -0.4, 0, Math.PI * 2);
+                ctx.ellipse(6, -24 + bobY, 5, 3, 0.4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(0, -24 + bobY, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        function draw() {
+            const theme = STAGE_THEMES[(currentStage - 1) % STAGE_THEMES.length];
+
+            // Background Gradient per stage
+            const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            bgGrad.addColorStop(0, theme.bgTop);
+            bgGrad.addColorStop(1, theme.bgBottom);
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.translate(-Math.floor(cameraX), 0);
+
+            // Clouds
+            ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+            for (let i = 0; i < 16; i++) {
+                const cx = i * 200 + 40;
+                const cy = 50 + (i % 3) * 30;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+                ctx.arc(cx + 20, cy - 10, 20, 0, Math.PI * 2);
+                ctx.arc(cx + 40, cy, 22, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Platforms
+            platforms.forEach(p => {
+                ctx.fillStyle = theme.ground;
+                ctx.beginPath();
+                ctx.roundRect(p.x, p.y, p.w, p.h, 10);
+                ctx.fill();
+            });
+
+            // Question Blocks
+            blocks.forEach(b => {
+                if (b.hit) {
+                    ctx.fillStyle = "#d3d3d3";
+                    ctx.beginPath();
+                    ctx.roundRect(b.x, b.y, b.w, b.h, 8);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = theme.block;
+                    ctx.beginPath();
+                    ctx.roundRect(b.x, b.y, b.w, b.h, 8);
+                    ctx.fill();
+                    ctx.lineWidth = 3;
+                    ctx.strokeStyle = "#ffb7b2";
+                    ctx.stroke();
+
+                    ctx.fillStyle = "#ff6b6b";
+                    ctx.font = "bold 20px Fredoka";
+                    ctx.textAlign = "center";
+                    ctx.fillText("?", b.x + b.w / 2, b.y + b.h / 2 + 7);
+                }
+            });
+
+            // Stars
+            stars.forEach(s => {
+                if (!s.collected) {
+                    ctx.fillStyle = "#ffda79";
+                    ctx.font = "24px sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.fillText("⭐", s.x + s.w / 2, s.y + s.h);
+                }
+            });
+
+            // Goal Flag
+            ctx.fillStyle = "#ffb7c5";
+            ctx.fillRect(goalFlag.x, goalFlag.y, 8, goalFlag.height);
+            ctx.fillStyle = "#ff6b81";
+            ctx.beginPath();
+            ctx.moveTo(goalFlag.x + 8, goalFlag.y);
+            ctx.lineTo(goalFlag.x + 50, goalFlag.y + 20);
+            ctx.lineTo(goalFlag.x + 8, goalFlag.y + 40);
+            ctx.closePath();
+            ctx.fill();
+
+            drawHeroCharacter(ctx);
+
+            ctx.restore();
+        }
+
+        /* --- Star Shop Fixes & Implementation --- */
+        function renderShopItems() {
+            const outfitContainer = document.getElementById('outfit-shop');
+            const hatContainer = document.getElementById('hat-shop');
+            const powerContainer = document.getElementById('power-shop');
+
+            document.getElementById('shop-coins').innerText = score;
+
+            outfitContainer.innerHTML = '';
+            hatContainer.innerHTML = '';
+            powerContainer.innerHTML = '';
+
+            SHOP_ITEMS.forEach(item => {
+                const isUnlocked = unlockedItems.includes(item.id);
+                const isEquipped = (currentOutfit === item.id) || (currentHat === item.id);
+
+                const card = document.createElement('div');
+                card.className = "p-2.5 rounded-2xl border flex flex-col justify-between items-center bg-purple-50/50 border-purple-200";
+
+                let btnHTML = '';
+                if (isEquipped) {
+                    btnHTML = `<span class="text-xs font-bold text-emerald-600 bg-emerald-100 px-2.5 py-1 rounded-full">Equipped</span>`;
+                } else if (isUnlocked) {
+                    btnHTML = `<button onclick="equipItem('${item.id}', '${item.category}')" class="px-3 py-1 bg-purple-500 text-white font-bold rounded-xl text-xs hover:bg-purple-600">Equip</button>`;
+                } else {
+                    btnHTML = `<button onclick="buyItem('${item.id}', ${item.price})" class="px-3 py-1 bg-amber-500 text-white font-bold rounded-xl text-xs hover:bg-amber-600 flex items-center gap-1"><i class="fa-solid fa-coins"></i> ${item.price}</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="text-center mb-1">
+                        <div class="font-bold text-xs text-slate-700">${item.name}</div>
+                    </div>
+                    ${btnHTML}
+                `;
+
+                if (item.category === 'outfit') outfitContainer.appendChild(card);
+                else if (item.category === 'hat') hatContainer.appendChild(card);
+                else powerContainer.appendChild(card);
+            });
+        }
+
+        function buyItem(id, price) {
+            if (score >= price) {
+                score -= price;
+                unlockedItems.push(id);
+                equipItem(id, SHOP_ITEMS.find(i => i.id === id).category);
+                playSound('star');
+                updateHUD();
+                renderShopItems();
+            } else {
+                playSound('wrong');
+            }
+        }
+
+        function equipItem(id, category) {
+            if (category === 'outfit') currentOutfit = id;
+            if (category === 'hat') currentHat = id;
+            playSound('correct');
+            renderShopItems();
+            if (isGameRunning) draw();
+        }
+
+        function openShop() {
+            renderShopItems();
+            document.getElementById('shop-modal').classList.remove('hidden');
+        }
+
+        function closeShop() {
+            document.getElementById('shop-modal').classList.add('hidden');
+        }
+
+        /* --- HUD & Victory Modal Handlers --- */
+        function updateHUD() {
+            document.getElementById('star-count').innerText = `${collectedStars} / 5`;
+            document.getElementById('score-val').innerText = `${score} pts`;
+        }
+
+        function showVictoryScreen() {
+            playSound('star');
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+
+            document.getElementById('victory-stars').innerText = `${collectedStars} / 5 ⭐`;
+            document.getElementById('victory-score').innerText = `${score} pts`;
+            document.getElementById('victory-modal').classList.remove('hidden');
+        }
+
+        // Initialize Canvas & Grid on Load
+        window.onload = function () {
+            setupCanvasSize();
+            switchWorldTab(1);
+        };
+    </script>
+</body>
+</html>
